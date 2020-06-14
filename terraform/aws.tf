@@ -3,7 +3,7 @@ provider "aws" {
   region  = "ap-southeast-2"
 }
 
-
+# Creating VPC related resources
 resource "aws_vpc" "sdn_vpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -12,7 +12,8 @@ resource "aws_vpc" "sdn_vpc" {
   }
 }
 
-resource "aws_internet_gateway" "gw" {
+# Create internet gateway
+resource "aws_internet_gateway" "sdn_internet_gateway" {
   vpc_id = aws_vpc.sdn_vpc.id
 
   tags = {
@@ -20,8 +21,23 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+# Create public routing table
+resource "aws_route_table" "public_route_table" {
+  vpc_id = aws_vpc.sdn_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.sdn_internet_gateway.id
+  }
+
+  tags = {
+    Name = "public_route_table"
+  }
+}
 
 
+
+# Create security groups
 resource "aws_security_group" "web_security_group" {
   name        = "web_security_group"
   description = "Allow ssh and http/https"
@@ -109,6 +125,12 @@ resource "aws_subnet" "private_subnet" {
   tags = {
     Name = "private_subnet1"
   }
+}
+
+
+resource "aws_route_table_association" "public_association" {
+  subnet_id      = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_route_table.id
 }
 
 
