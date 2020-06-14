@@ -1,0 +1,9 @@
+---
+- hosts: frontend
+  become: true
+
+  tasks:
+    - name: Install and update the packages on the linux to the latest version
+      yum: 
+        name: '*'
+        state: latest
