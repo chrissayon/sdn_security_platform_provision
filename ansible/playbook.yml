@@ -31,5 +31,23 @@
       apt:
         name: nodejs
         state: present
-      
+    
+    - name: Clone frontend git repository
+      git:
+        repo: https://github.com/chrissayon/sdn_security_platform_frontend.git
+        clone: yes
+        dest: /home/ubuntu/frontend
+    
+    - name: Install NodeJS packages based on requires on frontend
+      npm:
+        path: /home/ubuntu/frontend
+        state: present
 
+    - name: Increase heap stack for building the project
+      shell: echo NODE_OPTIONS is $NODE_OPTIONS
+      environment:
+        NODE_OPTIONS: --max-old-space-size=8192
+      register: shellout
+
+    - name: Build the frontend project (though this is just for optimization)
+      shell: 'cd ~/frontend; npm run build'
