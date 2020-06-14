@@ -37,7 +37,7 @@ resource "aws_route_table" "public_route_table" {
 
 
 
-# Create security groups
+# Create frontend security group
 resource "aws_security_group" "web_security_group" {
   name        = "web_security_group"
   description = "Allow ssh and http/https"
@@ -79,6 +79,8 @@ resource "aws_security_group" "web_security_group" {
   }
 }
 
+
+# Create backend security group
 resource "aws_security_group" "app_security_group" {
   name        = "app_security_group"
   description = "Allow traffic from frontend webserver"
@@ -106,6 +108,7 @@ resource "aws_security_group" "app_security_group" {
   }
 }
 
+# Create public subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
   cidr_block        = "10.0.0.0/24"
@@ -117,6 +120,7 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
+# Create private subnet
 resource "aws_subnet" "private_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
   cidr_block        = "10.0.1.0/24"
@@ -127,14 +131,14 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
-
+# Associate public route table to public subnet
 resource "aws_route_table_association" "public_association" {
   subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
 
-
+# SSH key generation
 resource "tls_private_key" "key" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -146,13 +150,14 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.key.public_key_openssh
 }
 
+# Output SSH key to local file 'web_server_key.pem'
 resource "local_file" "output_key_file" {
   content = tls_private_key.key.private_key_pem
   filename = "web_server_key.pem"
 }
 
 
-
+# Create web instance (frontend)
 resource "aws_instance" "web_instance" {
   ami                    = "ami-03686c686b463366b"
   instance_type          = "t2.micro"
@@ -168,6 +173,7 @@ resource "aws_instance" "web_instance" {
   }
 }
 
+# Create app instance (backend)
 resource "aws_instance" "application_instance" {
   subnet_id     = aws_subnet.private_subnet.id
   ami           = "ami-03686c686b463366b"
