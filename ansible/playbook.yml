@@ -1,14 +1,35 @@
 ---
 - hosts: frontend
   become: true
+  vars:
+    NODEJS_VERSION: "12"
+    ansible_distribution_release: "bionic" 
 
   tasks:
     - name: Update the packages on linux to the latest version
       apt: 
         name: '*'
         state: latest
-
-    - name: Install curl and wget npm package
+  
+    - name: Install curl to add repository for node
       apt:
-        name: 'curl'
+        name: curl
         state: present
+
+    - name: Install the gpg key for nodejs LTS
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+
+    - name: Install the nodejs LTS repos
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
+
+    - name: Install the nodejs
+      apt:
+        name: nodejs
+        state: present
+      
+
