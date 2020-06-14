@@ -54,6 +54,32 @@ resource "aws_security_group" "web_security_group" {
   }
 }
 
+resource "aws_security_group" "app_security_group" {
+  name        = "app_security_group"
+  description = "Allow traffic from frontend webserver"
+  vpc_id      = aws_vpc.sdn_vpc.id
+
+  ingress {
+    description = "Accept traffic from web server only"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    security_groups = [
+      aws_security_group.web_security_group.id
+    ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "app_security_group"
+  }
+}
 
 resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
@@ -76,9 +102,13 @@ resource "aws_subnet" "private_subnet" {
 }
 
 resource "aws_instance" "web_instance" {
-  subnet_id     = aws_subnet.public_subnet.id
-  ami           = "ami-03686c686b463366b"
-  instance_type = "t2.micro"
+  ami                    = "ami-03686c686b463366b"
+  instance_type          = "t2.micro"
+
+  subnet_id              = aws_subnet.public_subnet.id
+  security_groups = [
+    aws_security_group.web_security_group.id
+  ]
 
   tags = {
     Name = "web_server"
