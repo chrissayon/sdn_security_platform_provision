@@ -120,6 +120,10 @@ resource "aws_instance" "application_instance" {
   ami           = "ami-03686c686b463366b"
   instance_type = "t2.micro"
 
+  security_groups = [
+    aws_security_group.app_security_group.id
+  ]
+
   tags = {
     Name = "application_server"
   }
