@@ -1,7 +1,7 @@
 [frontend]
-3.25.124.84
+13.211.206.45
 
 [frontend:vars]
 ansible_connection=ssh
-ansible_user=ec2-user
+ansible_user=ubuntu
 ansible_ssh_private_key_file=ssh-key.pem
