@@ -12,6 +12,14 @@ resource "aws_vpc" "sdn_vpc" {
   }
 }
 
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.sdn_vpc.id
+
+  tags = {
+    Name = "sdn_internet_gateway"
+  }
+}
+
 
 
 resource "aws_security_group" "web_security_group" {
