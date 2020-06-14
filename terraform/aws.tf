@@ -1,11 +1,11 @@
 provider "aws" {
   profile = "default"
-  region  = "ap-southeast-2"
+  region  = var.region
 }
 
 # Creating VPC related resources
 resource "aws_vpc" "sdn_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "sdnVPC"
@@ -111,8 +111,8 @@ resource "aws_security_group" "app_security_group" {
 # Create public subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
-  cidr_block        = "10.0.0.0/24"
-  availability_zone = "ap-southeast-2a"
+  cidr_block        = var.public_cidr
+  availability_zone = var.public_az
   map_public_ip_on_launch = true
 
   tags = {
@@ -123,8 +123,8 @@ resource "aws_subnet" "public_subnet" {
 # Create private subnet
 resource "aws_subnet" "private_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "ap-southeast-2b"
+  cidr_block        = var.private_cidr
+  availability_zone = var.private_az
 
   tags = {
     Name = "private_subnet1"
@@ -159,8 +159,8 @@ resource "local_file" "output_key_file" {
 
 # Create web instance (frontend)
 resource "aws_instance" "web_instance" {
-  ami                    = "ami-03686c686b463366b"
-  instance_type          = "t2.micro"
+  ami                    = var.ami_id
+  instance_type          = var.instance_type
   key_name               = aws_key_pair.generated_key.key_name
 
   subnet_id              = aws_subnet.public_subnet.id
@@ -176,8 +176,8 @@ resource "aws_instance" "web_instance" {
 # Create app instance (backend)
 resource "aws_instance" "application_instance" {
   subnet_id     = aws_subnet.private_subnet.id
-  ami           = "ami-03686c686b463366b"
-  instance_type = "t2.micro"
+  ami           = var.ami_id
+  instance_type = var.instance_type
 
   security_groups = [
     aws_security_group.app_security_group.id
