@@ -13,6 +13,7 @@ resource "aws_vpc" "sdn_vpc" {
 }
 
 
+
 resource "aws_security_group" "web_security_group" {
   name        = "web_security_group"
   description = "Allow ssh and http/https"
@@ -23,7 +24,7 @@ resource "aws_security_group" "web_security_group" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.sdn_vpc.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -31,7 +32,7 @@ resource "aws_security_group" "web_security_group" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.sdn_vpc.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -39,7 +40,7 @@ resource "aws_security_group" "web_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.sdn_vpc.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -85,6 +86,7 @@ resource "aws_subnet" "public_subnet" {
   vpc_id            = aws_vpc.sdn_vpc.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "ap-southeast-2a"
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "public_subnet1"
@@ -101,9 +103,30 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
+
+
+resource "tls_private_key" "key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+
+resource "aws_key_pair" "generated_key" {
+  key_name   = "SDN Key Pair"
+  public_key = tls_private_key.key.public_key_openssh
+}
+
+resource "local_file" "output_key_file" {
+  content = tls_private_key.key.private_key_pem
+  filename = "web_server_key.pem"
+}
+
+
+
 resource "aws_instance" "web_instance" {
   ami                    = "ami-03686c686b463366b"
   instance_type          = "t2.micro"
+  key_name               = aws_key_pair.generated_key.key_name
 
   subnet_id              = aws_subnet.public_subnet.id
   security_groups = [
