@@ -31,12 +31,22 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
-resource "aws_instance" "webEC2" {
+resource "aws_instance" "web_instance" {
+  subnet_id     = aws_subnet.public_subnet.id
   ami           = "ami-03686c686b463366b"
   instance_type = "t2.micro"
 
   tags = {
-    Name = "webserver"
+    Name = "web_server"
   }
 }
 
+resource "aws_instance" "application_instance" {
+  subnet_id     = aws_subnet.private_subnet.id
+  ami           = "ami-03686c686b463366b"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "application_server"
+  }
+}
