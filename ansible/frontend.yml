@@ -1,48 +1,14 @@
 ---
 - hosts: frontend
   become: true
+  
   vars_files:
     - vars/frontend_vars.yml
 
+  roles:
+    - node_roles
 
   tasks:
-    - name: Update the packages on linux to the latest version
-      apt: 
-        name: '*'
-        state: latest
-  
-    - name: Install curl to add repository for node
-      apt:
-        name: curl
-        state: present
-
-    - name: Install the gpg key for nodejs LTS
-      apt_key:
-        url: "{{ NODEJS_GPG_KEY }}"
-        state: present
-
-    - name: Install the nodejs LTS repos
-      apt_repository:
-        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
-        state: present
-        update_cache: yes
-
-    - name: Install the nodejs
-      apt:
-        name: nodejs
-        state: present
-    
-    - name: Clone frontend git repository
-      git:
-        repo: "{{ GIT_REPO }}"
-        clone: yes
-        dest: "{{ REPO_LOCATION }}"
-    
-    - name: Install NodeJS packages based on requires on frontend
-      npm:
-        path: "{{ REPO_LOCATION }}"
-        state: present
-
     # - name: Increase heap stack for building the project by setting NODE_OPTIONS
     #   shell: echo $NODE_OPTIONS
     #   environment:
