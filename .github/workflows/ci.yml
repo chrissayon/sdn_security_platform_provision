@@ -5,6 +5,7 @@ name: CI
   push:
       branches:
         - development/ansible
+        - master
 
 jobs:
   test:
@@ -22,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Set up Python 3.
-        uses: actions/setup0python@v2
+        uses: actions/setup-python@v2
         with:
           python-version: '3.x'
       
