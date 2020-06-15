@@ -29,5 +29,5 @@ jobs:
         run: pip3 install molecule docker yamllint ansible-lint
       
       - name: Run Molecule tests.
-        working directory: ./ansible
+        working-directory: ./ansible
         run: molecule test
