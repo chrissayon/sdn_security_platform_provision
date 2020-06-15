@@ -1,23 +1,12 @@
 ---
-# - name: Update the packages on linux to the latest version
-#   apt: 
-#     name: '*'
-#     state: latest
-
-- name: Install node and git dependancies to add repository for nodejs
+- name: Install node and git dependancies
   apt:
     pkg:
       - curl
       - gnupg
       - git
-    state: present
-
-
-# - name: Install gnupg for gpg key
-#   apt:
-#     name: gnupg
-#     state: present
-      
+      - python3.7
+    state: present      
 
 - name: Install the gpg key for nodejs LTS
   apt_key:
