@@ -11,8 +11,6 @@ jobs:
   test:
     name: Molecule
     runs-on: ubuntu-latest
-    env:
-      working directory: ./ansible
     strategy:
       matrix:
         distro:
@@ -31,4 +29,5 @@ jobs:
         run: pip3 install molecule docker yamllint ansible-lint
       
       - name: Run Molecule tests.
+        working directory: ./ansible
         run: molecule test
