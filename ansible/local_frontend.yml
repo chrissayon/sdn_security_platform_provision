@@ -1,7 +1,6 @@
 ---
 - hosts: all
   become: true
-  
   vars_files:
     - vars/frontend_vars.yml
 
@@ -9,27 +8,17 @@
     - node_roles
 
   tasks:
-    # - name: Increase heap stack for building the project by setting NODE_OPTIONS
-    #   shell: echo $NODE_OPTIONS
-    #   environment:
-    #     NODE_OPTIONS: --max-old-space-size=4096
-    #   register: node_options
-    # - debug:
-    #     var: node_options.stdout
-
     - name: Build the frontend project for production
       shell: 
         cmd: npm run build
         chdir: "{{ REPO_LOCATION }}"
       environment:
         NODE_OPTIONS: --max-old-space-size=2048
-  
-    # - name: Install production runtime and process manager
-    #   npm:
-    #     name: pm2
-    #     state: present
-    #     global: true
+      register: buildout_r
 
+    - debug: 
+        msg: "{{ buildout_r.stdout }}"
+  
     - name: Install Nginx
       apt:
         name: nginx
@@ -44,6 +33,10 @@
       file:
         path: "{{ STATIC_HOST_DIR }}"
         state: directory
+      register: nginxService
+
+    - debug: 
+        msg: "{{ nginxService }}"
     
     - name: Copy build files to Nginx hosting directory
       copy:
@@ -51,4 +44,12 @@
         dest: "{{ STATIC_HOST_DIR }}/"
         remote_src: yes
         directory_mode: yes
-    
+      register: copyContent
+
+    - debug: 
+        msg: "{{ copyContent }}"
+
+    - name: Confirm that Nginx service is running
+      service:
+          name: nginx
+          enabled: yes

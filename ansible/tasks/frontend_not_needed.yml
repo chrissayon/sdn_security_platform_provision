@@ -1,5 +1,4 @@
----
-# Not currently being used in this commit, was testing to see if tasks import
+--- # Not currently being used in this commit, was testing to see if tasks import
 - name: Update the packages on linux to the latest version
   apt: 
     name: '*'
@@ -37,13 +36,13 @@
     path: "{{ REPO_LOCATION }}"
     state: present
 
-# - name: Increase heap stack for building the project by setting NODE_OPTIONS
-#   shell: echo $NODE_OPTIONS
-#   environment:
-#     NODE_OPTIONS: --max-old-space-size=4096
-#   register: node_options
-# - debug:
-#     var: node_options.stdout
+- name: Increase heap stack for building the project by setting NODE_OPTIONS
+  shell: echo $NODE_OPTIONS
+  environment:
+    NODE_OPTIONS: --max-old-space-size=4096
+  register: node_options
+- debug:
+    var: node_options.stdout
 
 - name: Build the frontend project for production
   shell: 
@@ -52,11 +51,11 @@
   environment:
     NODE_OPTIONS: --max-old-space-size=2048
 
-# - name: Install production runtime and process manager
-#   npm:
-#     name: pm2
-#     state: present
-#     global: true
+- name: Install production runtime and process manager
+  npm:
+    name: pm2
+    state: present
+    global: true
 
 - name: Install Nginx
   apt:
@@ -79,4 +78,3 @@
     dest: "{{ STATIC_HOST_DIR }}/"
     remote_src: yes
     directory_mode: yes
-
