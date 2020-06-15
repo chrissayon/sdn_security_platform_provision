@@ -5,6 +5,8 @@
     NODEJS_VERSION: "12"
     ansible_distribution_release: "bionic" 
 
+
+
   tasks:
     - name: Update the packages on linux to the latest version
       apt: 
@@ -43,11 +45,18 @@
         path: /home/ubuntu/frontend
         state: present
 
-    - name: Increase heap stack for building the project
-      shell: echo NODE_OPTIONS is $NODE_OPTIONS
-      environment:
-        NODE_OPTIONS: --max-old-space-size=8192
-      register: shellout
+    # - name: Increase heap stack for building the project by setting NODE_OPTIONS
+    #   shell: echo $NODE_OPTIONS
+    #   environment:
+    #     NODE_OPTIONS: --max-old-space-size=4096
+    #   register: node_options
+    # - debug:
+    #     var: node_options.stdout
 
     - name: Build the frontend project (though this is just for optimization)
-      shell: 'cd ~/frontend; npm run build'
+      shell: 
+        cmd: npm run build
+        chdir: /home/ubuntu/frontend
+      environment:
+        NODE_OPTIONS: --max-old-space-size=2048
+      
