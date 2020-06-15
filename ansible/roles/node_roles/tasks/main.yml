@@ -1,13 +1,23 @@
 ---
-- name: Update the packages on linux to the latest version
-  apt: 
-    name: '*'
-    state: latest
+# - name: Update the packages on linux to the latest version
+#   apt: 
+#     name: '*'
+#     state: latest
 
-- name: Install curl to add repository for node
+- name: Install node and git dependancies to add repository for nodejs
   apt:
-    name: curl
+    pkg:
+      - curl
+      - gnupg
+      - git
     state: present
+
+
+# - name: Install gnupg for gpg key
+#   apt:
+#     name: gnupg
+#     state: present
+      
 
 - name: Install the gpg key for nodejs LTS
   apt_key:
