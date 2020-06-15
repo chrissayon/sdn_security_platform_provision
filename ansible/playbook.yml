@@ -53,10 +53,20 @@
     # - debug:
     #     var: node_options.stdout
 
-    - name: Build the frontend project (though this is just for optimization)
+    - name: Build the frontend project for production
       shell: 
         cmd: npm run build
         chdir: /home/ubuntu/frontend
       environment:
         NODE_OPTIONS: --max-old-space-size=2048
-      
+  
+    - name: Install production runtime and process manager
+      npm:
+        name: pm2
+        state: present
+        global: true
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
