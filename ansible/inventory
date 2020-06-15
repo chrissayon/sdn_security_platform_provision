@@ -1,5 +1,5 @@
 [frontend]
-54.252.226.36
+13.54.192.216
 
 [frontend:vars]
 ansible_connection=ssh

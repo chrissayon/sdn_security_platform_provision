@@ -60,13 +60,25 @@
       environment:
         NODE_OPTIONS: --max-old-space-size=2048
   
-    - name: Install production runtime and process manager
-      npm:
-        name: pm2
-        state: present
-        global: true
+    # - name: Install production runtime and process manager
+    #   npm:
+    #     name: pm2
+    #     state: present
+    #     global: true
 
     - name: Install Nginx
       apt:
         name: nginx
         state: present
+    
+    - name: Delete content that Nginx is currently hosting
+      file:
+        path: /var/www/html
+        state: absent
+    
+    - name: Copy build files to Nginx hosting directory
+      copy:
+        src: /home/ubuntu/frontend/build/
+        dest: /var/www/html/
+        remote_src: yes
+    
