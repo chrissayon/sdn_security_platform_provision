@@ -51,4 +51,9 @@
         dest: "{{ STATIC_HOST_DIR }}/"
         remote_src: yes
         directory_mode: yes
+
+    - name: Confirm that Nginx service is running
+      service:
+          name: nginx
+          enabled: yes
     
