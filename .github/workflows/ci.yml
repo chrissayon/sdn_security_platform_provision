@@ -4,12 +4,14 @@ name: CI
   pull_request:
   push:
       branches:
-        - master
+        - development/ansible
 
 jobs:
   test:
     name: Molecule
     runs-on: ubuntu-latest
+    env:
+      working directory: ./ansible
     strategy:
       matrix:
         distro:
@@ -20,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Set up Python 3.
-        uses: actiosn/setup0python@v2
+        uses: actions/setup0python@v2
         with:
           python-version: '3.x'
       
