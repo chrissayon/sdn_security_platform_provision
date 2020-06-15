@@ -2,7 +2,7 @@
 - hosts: frontend
   become: true
   vars_files:
-    - vars/frontend.yml
+    - vars/frontend_vars.yml
 
 
   tasks:
