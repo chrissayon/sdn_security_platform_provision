@@ -13,3 +13,10 @@
         repo: "{{ GIT_REPO }}"
         clone: yes
         dest: "{{ REPO_LOCATION }}"
+    
+    - name: Install python project dependencies from requirements.txt
+      pip:
+        chdir: "{{ REPO_LOCATION }}"
+        requirements: "requirements.txt" 
+        virtualenv: "{{ VENV_LOCATION }}"
+        virtualenv_python: python3.7
