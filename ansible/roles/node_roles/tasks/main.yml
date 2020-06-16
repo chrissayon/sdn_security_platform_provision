@@ -28,14 +28,3 @@
   apt:
     name: nodejs
     state: present
-
-- name: Clone frontend git repository
-  git:
-    repo: "{{ GIT_REPO }}"
-    clone: yes
-    dest: "{{ REPO_LOCATION }}"
-
-- name: Install NodeJS packages based on requires on frontend
-  npm:
-    path: "{{ REPO_LOCATION }}"
-    state: present
