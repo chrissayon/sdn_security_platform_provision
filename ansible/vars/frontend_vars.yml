@@ -6,4 +6,4 @@ NODEJS_GPG_KEY: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
 GIT_REPO: https://github.com/chrissayon/sdn_security_platform_frontend.git
 REPO_LOCATION: /home/ubuntu/frontend
 
-STATIC_HOST_DIR: /var/www/html
+NGINX_CONF_LOCATION: /etc/nginx/sites-available/default

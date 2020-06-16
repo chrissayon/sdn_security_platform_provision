@@ -27,27 +27,39 @@
         NODE_OPTIONS: --max-old-space-size=2048
       register: buildout_r
   
+    - name: Install pm2 to run frontend as background process
+      npm:
+        name: pm2
+        global: yes
+        state: present
+    
+    - name: Run frontend server
+      shell: 
+        cmd: pm2 start sdn_pm2.json
+        chdir: "{{ REPO_LOCATION }}"
+
     - name: Install Nginx
       apt:
         name: nginx
         state: present
+
+    - name: Copy configuration file to nginx
+      copy: 
+        src: default
+        dest: "{{ NGINX_CONF_LOCATION }}"
     
-    - name: Delete content that Nginx is currently hosting
-      file:
-        path: "{{ STATIC_HOST_DIR }}"
-        state: absent
+    - name: Check if there are any syntax issues with the config file
+      shell: 
+        cmd: nginx -t
+        chdir: "{{ REPO_LOCATION }}"
+      register: nginx_config_success
+      failed_when: 
+        - '"test is successful" not in nginx_config_success.stderr'
 
-    - name: Make sure Nginx hosting directory exists 
-      file:
-        path: "{{ STATIC_HOST_DIR }}"
-        state: directory
-
-    - name: Copy build files to Nginx hosting directory
-      copy:
-        src: "{{ REPO_LOCATION }}/build/"
-        dest: "{{ STATIC_HOST_DIR }}/"
-        remote_src: yes
-        directory_mode: yes
+    - name: Restart Nginx service is running
+      service:
+          name: nginx
+          state: restarted
 
     - name: Confirm that Nginx service is running
       service:
