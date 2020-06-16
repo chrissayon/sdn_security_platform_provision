@@ -1,0 +1,80 @@
+--- # Not currently being used in this commit, was testing to see if tasks import
+- name: Update the packages on linux to the latest version
+  apt: 
+    name: '*'
+    state: latest
+
+- name: Install curl to add repository for node
+  apt:
+    name: curl
+    state: present
+
+- name: Install the gpg key for nodejs LTS
+  apt_key:
+    url: "{{ NODEJS_GPG_KEY }}"
+    state: present
+
+- name: Install the nodejs LTS repos
+  apt_repository:
+    repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+    state: present
+    update_cache: yes
+
+- name: Install the nodejs
+  apt:
+    name: nodejs
+    state: present
+
+- name: Clone frontend git repository
+  git:
+    repo: "{{ GIT_REPO }}"
+    clone: yes
+    dest: "{{ REPO_LOCATION }}"
+
+- name: Install NodeJS packages based on requires on frontend
+  npm:
+    path: "{{ REPO_LOCATION }}"
+    state: present
+
+- name: Increase heap stack for building the project by setting NODE_OPTIONS
+  shell: echo $NODE_OPTIONS
+  environment:
+    NODE_OPTIONS: --max-old-space-size=4096
+  register: node_options
+- debug:
+    var: node_options.stdout
+
+- name: Build the frontend project for production
+  shell: 
+    cmd: npm run build
+    chdir: "{{ REPO_LOCATION }}"
+  environment:
+    NODE_OPTIONS: --max-old-space-size=2048
+
+- name: Install production runtime and process manager
+  npm:
+    name: pm2
+    state: present
+    global: true
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Delete content that Nginx is currently hosting
+  file:
+    path: "{{ STATIC_HOST_DIR }}"
+    state: absent
+
+- name: Make sure Nginx hosting directory exists 
+  file:
+    path: "{{ STATIC_HOST_DIR }}"
+    state: directory
+
+- name: Copy build files to Nginx hosting directory
+  copy:
+    src: "{{ REPO_LOCATION }}/build/"
+    dest: "{{ STATIC_HOST_DIR }}/"
+    remote_src: yes
+    directory_mode: yes

@@ -1,0 +1,36 @@
+---
+- hosts: backend
+  become: true
+  vars_files:
+    - vars/backend_vars.yml
+
+  roles:
+    - python_roles
+
+  tasks:
+    - name: Clone backend git repository
+      git:
+        repo: "{{ GIT_REPO }}"
+        clone: yes
+        dest: "{{ REPO_LOCATION }}"
+    
+    - name: Install python project dependencies from requirements.txt
+      pip:
+        chdir: "{{ REPO_LOCATION }}"
+        requirements: "requirements.txt" 
+        virtualenv: "{{ VENV_LOCATION }}"
+        virtualenv_python: python3.7
+
+    - name: Modify permissions of manage.py so it can be run
+      file:
+        path: "{{ REPO_LOCATION }}/manage.py"
+        mode: a+x
+    
+    - name: Run django server
+      django_manage:
+        app_path: "{{ REPO_LOCATION }}"
+        command: runserver
+        pythonpath: /usr/bin/python3.7
+        virtualenv: "{{ VENV_LOCATION }}"
+        async: 9999
+        poll: 0

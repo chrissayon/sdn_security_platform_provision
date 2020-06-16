@@ -1,0 +1,55 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/frontend_vars.yml
+
+  roles:
+    - node_roles
+
+  tasks:
+    - name: Build the frontend project for production
+      shell: 
+        cmd: npm run build
+        chdir: "{{ REPO_LOCATION }}"
+      environment:
+        NODE_OPTIONS: --max-old-space-size=2048
+      register: buildout_r
+
+    - debug: 
+        msg: "{{ buildout_r.stdout }}"
+  
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+    
+    - name: Delete content that Nginx is currently hosting
+      file:
+        path: "{{ STATIC_HOST_DIR }}"
+        state: absent
+
+    - name: Make sure Nginx hosting directory exists 
+      file:
+        path: "{{ STATIC_HOST_DIR }}"
+        state: directory
+      register: nginxService
+
+    - debug: 
+        msg: "{{ nginxService }}"
+    
+    - name: Copy build files to Nginx hosting directory
+      copy:
+        src: "{{ REPO_LOCATION }}/build/"
+        dest: "{{ STATIC_HOST_DIR }}/"
+        remote_src: yes
+        directory_mode: yes
+      register: copyContent
+
+    - debug: 
+        msg: "{{ copyContent }}"
+
+    - name: Confirm that Nginx service is running
+      service:
+          name: nginx
+          enabled: yes

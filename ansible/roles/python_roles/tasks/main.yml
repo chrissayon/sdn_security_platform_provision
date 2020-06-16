@@ -1,0 +1,16 @@
+---
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install python and git dependancies
+  apt:
+    pkg:
+      - python3.7
+      - python-setuptools
+      - python3-setuptools
+      - git
+      - virtualenv
+      - python-pip
+    state: present

@@ -1,0 +1,9 @@
+---
+NODEJS_VERSION: 12
+ansible_distribution_release: bionic
+NODEJS_GPG_KEY: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+GIT_REPO: https://github.com/chrissayon/sdn_security_platform_frontend.git
+REPO_LOCATION: /home/ubuntu/frontend
+
+NGINX_CONF_LOCATION: /etc/nginx/sites-available/default
