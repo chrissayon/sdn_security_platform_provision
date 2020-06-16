@@ -20,3 +20,17 @@
         requirements: "requirements.txt" 
         virtualenv: "{{ VENV_LOCATION }}"
         virtualenv_python: python3.7
+
+    - name: Modify permissions of manage.py so it can be run
+      file:
+        path: "{{ REPO_LOCATION }}/manage.py"
+        mode: a+x
+    
+    - name: Run django server
+      django_manage:
+        app_path: "{{ REPO_LOCATION }}"
+        command: runserver
+        pythonpath: /usr/bin/python3.7
+        virtualenv: "{{ VENV_LOCATION }}"
+      async: 9999
+      poll: 0
