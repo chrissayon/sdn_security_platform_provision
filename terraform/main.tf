@@ -35,6 +35,20 @@ resource "aws_route_table" "public_route_table" {
   }
 }
 
+# Create private routing table
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.sdn_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.sdn_internet_gateway.id
+  }
+
+  tags = {
+    Name = "private_route_table"
+  }
+}
+
 
 
 # Create frontend security group
@@ -49,6 +63,8 @@ resource "aws_security_group" "web_security_group" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    
   }
 
   ingress {
@@ -57,6 +73,7 @@ resource "aws_security_group" "web_security_group" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
@@ -65,6 +82,7 @@ resource "aws_security_group" "web_security_group" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   egress {
@@ -72,6 +90,7 @@ resource "aws_security_group" "web_security_group" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   tags = {
@@ -83,7 +102,7 @@ resource "aws_security_group" "web_security_group" {
 # Create backend security group
 resource "aws_security_group" "app_security_group" {
   name        = "app_security_group"
-  description = "Allow traffic from frontend webserver"
+  description = "Allow traffic from frontend webserver and ssh"
   vpc_id      = aws_vpc.sdn_vpc.id
 
   ingress {
@@ -96,11 +115,21 @@ resource "aws_security_group" "app_security_group" {
     ]
   }
 
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   tags = {
@@ -137,6 +166,12 @@ resource "aws_route_table_association" "public_association" {
   route_table_id = aws_route_table.public_route_table.id
 }
 
+# Associate public route table to public subnet
+resource "aws_route_table_association" "private_association" {
+  subnet_id      = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.private_route_table.id
+}
+
 
 # SSH key generation
 resource "tls_private_key" "key" {
@@ -160,10 +195,11 @@ resource "local_file" "output_key_file" {
 # Create web instance (frontend)
 resource "aws_instance" "web_instance" {
   ami                    = var.ami_id
+  subnet_id              = aws_subnet.public_subnet.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.generated_key.key_name
 
-  subnet_id              = aws_subnet.public_subnet.id
+  
   security_groups = [
     aws_security_group.web_security_group.id
   ]
@@ -174,11 +210,13 @@ resource "aws_instance" "web_instance" {
 }
 
 # Create app instance (backend)
-resource "aws_instance" "application_instance" {
-  subnet_id     = aws_subnet.private_subnet.id
+resource "aws_instance" "app_instance" {
   ami           = var.ami_id
+  subnet_id     = aws_subnet.private_subnet.id
   instance_type = var.instance_type
+  key_name      = aws_key_pair.generated_key.key_name
 
+  associate_public_ip_address = true
   security_groups = [
     aws_security_group.app_security_group.id
   ]

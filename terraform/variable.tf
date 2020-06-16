@@ -36,7 +36,7 @@ variable "private_az" {
 # AMI image ID for instance
 variable "ami_id" {
   type = string
-  default = "ami-03686c686b463366b"
+  default = "ami-04fcc97b5f6edcd89"
 }
 
 variable "instance_type" {
