@@ -1,0 +1,15 @@
+---
+- hosts: backend
+  become: true
+  vars_files:
+    - vars/backend_vars.yml
+
+  roles:
+    - python_roles
+
+  tasks:
+    - name: Clone backend git repository
+      git:
+        repo: "{{ GIT_REPO }}"
+        clone: yes
+        dest: "{{ REPO_LOCATION }}"

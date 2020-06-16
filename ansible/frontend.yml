@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: frontend
   become: true
   vars_files:
     - vars/frontend_vars.yml
