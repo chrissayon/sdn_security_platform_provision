@@ -189,6 +189,7 @@ resource "aws_key_pair" "generated_key" {
 resource "local_file" "output_key_file" {
   content = tls_private_key.key.private_key_pem
   filename = "web_server_key.pem"
+  file_permission = "0400"
 }
 
 

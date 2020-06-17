@@ -1,5 +1,5 @@
 ---
-- hosts: backend
+- hosts: tag_Name_application_server
   become: true
   vars_files:
     - vars/backend_vars.yml
@@ -32,5 +32,5 @@
         command: runserver
         pythonpath: /usr/bin/python3.7
         virtualenv: "{{ VENV_LOCATION }}"
-        async: 9999
-        poll: 0
+      async: 9999
+      poll: 0

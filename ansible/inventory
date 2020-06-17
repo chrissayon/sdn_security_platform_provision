@@ -1,5 +1,5 @@
-[frontend]
-3.104.104.137
+[tag_Name_web_server]
+127.0.0.1
 
-[backend]
-3.104.104.137
+[tag_Name_application_server]
+127.0.0.1
