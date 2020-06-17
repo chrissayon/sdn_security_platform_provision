@@ -1,0 +1,67 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/frontend_vars.yml
+
+  roles:
+    - node_roles
+
+  tasks:
+    - name: Clone frontend git repository
+      git:
+        repo: "{{ GIT_REPO }}"
+        clone: yes
+        dest: "{{ REPO_LOCATION }}"
+
+    - name: Install NodeJS packages based on requires on frontend
+      npm:
+        path: "{{ REPO_LOCATION }}"
+        state: present
+
+    # - name: Build the frontend project for production
+    #   shell: 
+    #     cmd: npm run build
+    #     chdir: "{{ REPO_LOCATION }}"
+    #   environment:
+    #     NODE_OPTIONS: --max-old-space-size=2048
+    #   register: buildout_r
+  
+    - name: Install pm2 to run frontend as background process
+      npm:
+        name: pm2
+        global: yes
+        state: present
+    
+    - name: Run frontend server
+      shell: 
+        cmd: pm2 start sdn_pm2.json
+        chdir: "{{ REPO_LOCATION }}"
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy configuration file to nginx
+      copy: 
+        src: default
+        dest: "{{ NGINX_CONF_LOCATION }}"
+    
+    - name: Check if there are any syntax issues with the config file
+      shell: 
+        cmd: nginx -t
+        chdir: "{{ REPO_LOCATION }}"
+      register: nginx_config_success
+      failed_when: 
+        - '"test is successful" not in nginx_config_success.stderr'
+
+    - name: Restart Nginx service is running
+      service:
+          name: nginx
+          state: restarted
+
+    - name: Confirm that Nginx service is running
+      service:
+          name: nginx
+          enabled: yes
