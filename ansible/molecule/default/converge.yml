@@ -10,4 +10,5 @@
         cache_valid_time: 3600
       when: ansible_os_family == 'Ubuntu'
 
-- import_playbook: ../../local_frontend.yml
+- import_playbook: ../test_frontend.yml
+- import_playbook: ../test_backend.yml

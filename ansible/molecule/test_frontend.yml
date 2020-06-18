@@ -1,5 +1,5 @@
 ---
-- hosts: tag_Name_web_server
+- hosts: all
   become: true
   vars_files:
     - vars/frontend_vars.yml

@@ -1,5 +1,5 @@
 ---
-- hosts: tag_Name_application_server
+- hosts: all
   become: true
   vars_files:
     - vars/backend_vars.yml

@@ -1,0 +1,45 @@
+image:
+  name: hashicorp/terraform:light
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+stages:
+  - validate
+  - deploy
+  - configure
+
+# Validate terraform structure
+validate:
+  stage: validate
+  script:
+    - cd terraform
+    - terraform init
+    - terraform validate
+
+# # Separate apply job for manual launching Terraform as it can be destructive action.
+# deploy:
+#   stage: deploy
+#   script:
+#     - cd terraform
+#     - terraform init
+#     - terraform apply -auto-approve
+#     - terraform destroy -auto-approve
+#   dependencies:
+#     - validate
+
+# # Configure deployed EC2 instances
+# configure:
+#   stage: configure
+#   script:
+#     - cd terraform
+#     - terraform init
+#     - terraform apply -auto-approve
+#     - cd ../ansible
+#     - yum install ansible boto boto3
+#     - EXPORT ANSIBLE_HOST_KEY_CHECKING=False
+#     - ansible-playbook -i ec2.py main.yml
+#     - cd ../terraform
+#     - terraform destroy -auto-approve
+#   dependencies:
+#     - deploy

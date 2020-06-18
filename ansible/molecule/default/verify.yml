@@ -5,5 +5,11 @@
   tasks:
   - name: Verify Nginx is serving web requests.
     uri:
-      url: http://localhost/
+      url: http://localhost:80/
       status_code: 200
+
+  tasks:
+    - name: Verify Django is up.
+      uri:
+        url: http://localhost:8000/
+        status_code: 200
