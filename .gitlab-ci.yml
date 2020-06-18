@@ -4,16 +4,14 @@ image:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
-variables:
-  AWS_ACCESS_KEY_ID: "AKIAIOSFODNN7EXAMPLE"
-  AWS_SECRET_ACCESS_KEY: “wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY”
 
-before_script:
-  
+after_script:
+  - cd ../terraform
+  - terraform destroy -auto-approve
 
 stages:
   - validate
-  - deploy_destroy
+  - deploy
 
 validate:
   stage: validate
@@ -29,6 +27,5 @@ deploy_destroy:
     - cd terraform
     - terraform init
     - terraform apply -auto-approve
-    - terraform destroy -auto-approve
   dependencies:
     - validate
