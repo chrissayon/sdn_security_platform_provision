@@ -8,10 +8,12 @@ variables:
   AWS_ACCESS_KEY_ID: "AKIAIOSFODNN7EXAMPLE"
   AWS_SECRET_ACCESS_KEY: “wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY”
 
+before_script:
+  
+
 stages:
   - validate
-  - deploy
-  - destroy
+  - deploy_destroy
 
 validate:
   stage: validate
@@ -22,13 +24,11 @@ validate:
 
 # Separate apply job for manual launching Terraform as it can be destructive action.
 apply:
-  stage: deploy
+  stage: deploy_destroy
   script:
+    - cd terraform
+    - terraform init
     - terraform apply -input=false
+    - terraform destroy -input=false
   dependencies:
     - validate
-
-destroy:
-  stage: destroy
-  script:
-    - terraform destroy -input=false
