@@ -8,8 +8,9 @@ image:
 stages:
   - validate
 
-  
+
 validate:
   stage: validate
   script:
     - terraform validate
+    - ls
