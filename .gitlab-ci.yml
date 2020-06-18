@@ -4,15 +4,12 @@ image:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
-
-after_script:
-  - cd ../terraform
-  - terraform destroy -auto-approve
-
 stages:
   - validate
   - deploy
+  - configure
 
+# Validate terraform structure
 validate:
   stage: validate
   script:
@@ -27,5 +24,19 @@ deploy:
     - cd terraform
     - terraform init
     - terraform apply -auto-approve
+    - terraform destroy -auto-approve
   dependencies:
     - validate
+
+# Configure deployed EC2 instances
+configure:
+  stage: configure
+  script:
+    - apt install ansible boto boto3
+    - cd ansible
+    - EXPORT ANSIBLE_HOST_KEY_CHECKING=False
+    - ansible-playbook -i ec2.py main.yml
+    - cd ../terraform
+    - terraform destroy -auto-approve
+  dependencies:
+    - deploy
