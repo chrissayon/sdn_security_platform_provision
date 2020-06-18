@@ -28,7 +28,7 @@ apply:
   dependencies:
     - validate
 
-apply:
+destroy:
   stage: destroy
   script:
-    - terraform destroy
+    - terraform destroy -input=false
