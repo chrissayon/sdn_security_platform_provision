@@ -23,12 +23,12 @@ validate:
     - terraform validate
 
 # Separate apply job for manual launching Terraform as it can be destructive action.
-apply:
+deploy_destroy:
   stage: deploy_destroy
   script:
     - cd terraform
     - terraform init
-    - terraform apply -input=true
-    - terraform destroy -input=true
+    - terraform apply -auto-approve
+    - terraform destroy -auto-approve
   dependencies:
     - validate
