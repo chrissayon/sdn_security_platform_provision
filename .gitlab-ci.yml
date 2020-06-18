@@ -28,7 +28,7 @@ apply:
   script:
     - cd terraform
     - terraform init
-    - terraform apply -input=false
-    - terraform destroy -input=false
+    - terraform apply -input=true
+    - terraform destroy -input=true
   dependencies:
     - validate
