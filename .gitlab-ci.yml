@@ -12,5 +12,6 @@ stages:
 validate:
   stage: validate
   script:
+    - cd terraform
+    - terraform init
     - terraform validate
-    - ls
