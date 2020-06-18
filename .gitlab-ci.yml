@@ -3,11 +3,15 @@ image:
   entrypoint:
     - '/usr/bin/env'
     - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-  
+
+variables:
+  AWS_ACCESS_KEY_ID: "AKIAIOSFODNN7EXAMPLE"
+  AWS_SECRET_ACCESS_KEY: “wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY”
 
 stages:
   - validate
-
+  - deploy
+  - destroy
 
 validate:
   stage: validate
@@ -15,3 +19,16 @@ validate:
     - cd terraform
     - terraform init
     - terraform validate
+
+# Separate apply job for manual launching Terraform as it can be destructive action.
+apply:
+  stage: deploy
+  script:
+    - terraform apply -input=false
+  dependencies:
+    - validate
+
+apply:
+  stage: destroy
+  script:
+    - terraform destroy
