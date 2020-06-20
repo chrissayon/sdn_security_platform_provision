@@ -45,7 +45,7 @@
 
     - name: Copy configuration file to nginx
       copy: 
-        src: default
+        src: nginx_frontend
         dest: "{{ NGINX_CONF_LOCATION }}"
     
     - name: Check if there are any syntax issues with the config file

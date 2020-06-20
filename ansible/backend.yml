@@ -20,17 +20,58 @@
         requirements: "requirements.txt" 
         virtualenv: "{{ VENV_LOCATION }}"
         virtualenv_python: python3.7
-
-    - name: Modify permissions of manage.py so it can be run
-      file:
-        path: "{{ REPO_LOCATION }}/manage.py"
-        mode: a+x
     
-    - name: Run django server
-      django_manage:
-        app_path: "{{ REPO_LOCATION }}"
-        command: runserver
-        pythonpath: /usr/bin/python3.7
-        virtualenv: "{{ VENV_LOCATION }}"
+    - name: Run uwsgi for deployment
+      shell:
+        chdir: "{{ REPO_LOCATION }}"
+        cmd: "source /home/ubuntu/virt_env/bin/activate; uwsgi --ini uwsgi.ini --http :8000"
+      args:
+        executable: /bin/bash
       async: 9999
       poll: 0
+      register: "output"
+
+    - debug:
+        msg: "{{ output }}"
+      
+    # - name: Modify permissions of manage.py so it can be run
+    #   file:
+    #     path: "{{ REPO_LOCATION }}/manage.py"
+    #     mode: a+x
+    
+    # - name: Run django server
+    #   django_manage:
+    #     app_path: "{{ REPO_LOCATION }}"
+    #     command: runserver
+    #     pythonpath: /usr/bin/python3.7
+    #     virtualenv: "{{ VENV_LOCATION }}"
+    #   async: 9999
+    #   poll: 0
+  
+    # - name: Install Nginx
+    #   apt:
+    #     name: nginx
+    #     state: present
+
+    # - name: Copy configuration file to nginx
+    #   copy: 
+    #     src: nginx_backend
+    #     dest: "{{ NGINX_CONF_LOCATION }}"
+    
+    # - name: Check if there are any syntax issues with the config file
+    #   shell: 
+    #     cmd: nginx -t
+    #     chdir: "{{ REPO_LOCATION }}"
+    #   register: nginx_config_success
+    #   failed_when: 
+    #     - '"test is successful" not in nginx_config_success.stderr'
+
+    # - name: Restart Nginx service is running
+    #   service:
+    #       name: nginx
+    #       state: restarted
+
+    # - name: Confirm that Nginx service is running
+    #   service:
+    #       name: nginx
+    #       enabled: yes
